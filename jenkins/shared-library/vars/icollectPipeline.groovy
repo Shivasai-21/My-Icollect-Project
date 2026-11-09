@@ -56,6 +56,11 @@ def call(Map cfg) {
         }
 
         stages {
+            stage('Checkout') {
+                steps {
+                    checkout scm
+                }
+            }
             stage('Prepare') {
                 steps {
                     script {
