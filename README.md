@@ -20,7 +20,7 @@ see how much has been collected.
 | payment-service | Java 17, Spring Boot 3 | 8082 | Takes payments; the orchestrator that calls the other services |
 | notification-service | Node.js 20, Express | 8083 | Sends and stores receipts (email is simulated) |
 | reporting-service | Python 3.12, FastAPI | 8084 | Read-only collection reports built from the other services |
-| web-dashboard | nginx + HTML/JS | 8080 | Web page for making payments and watching the chain of calls; reverse-proxies `/api/*` to the four services |
+| web-dashboard | nginx + HTML/JS | 80 | Web page for making payments and watching the chain of calls; reverse-proxies `/api/*` to the four services |
 
 ## How they connect
 
