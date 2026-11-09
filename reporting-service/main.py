@@ -3,6 +3,7 @@
 Read-only service that combines data from the Payment and Customer services
 into collection reports. In production it would read from the RDS read replica.
 """
+from typing import Optional, Dict
 import os
 from collections import defaultdict
 from decimal import Decimal
@@ -16,7 +17,7 @@ CUSTOMER_SERVICE_URL = os.getenv("CUSTOMER_SERVICE_URL", "http://localhost:8081"
 app = FastAPI(title="reporting-service")
 
 
-async def fetch_json(client: httpx.AsyncClient, url: str, params: dict | None = None):
+async def fetch_json(client: httpx.AsyncClient, url: str, params: Optional[Dict] = None):
     """GET a URL and return JSON. Upstream failures become 502, a missing resource stays 404."""
     try:
         response = await client.get(url, params=params, timeout=5.0)
@@ -42,7 +43,7 @@ async def summary():
 
     successful = [p for p in payments if p["status"] == "SUCCESS"]
     total_collected = sum((Decimal(str(p["amount"])) for p in successful), Decimal("0"))
-    by_method: dict[str, Decimal] = defaultdict(Decimal)
+    by_method: Dict[str, Decimal] = defaultdict(Decimal)
     for p in successful:
         by_method[p["method"]] += Decimal(str(p["amount"]))
     outstanding = sum((Decimal(str(c["amountDue"])) for c in customers), Decimal("0"))
