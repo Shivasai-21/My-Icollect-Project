@@ -58,7 +58,9 @@ def call(Map cfg) {
         stages {
             stage('Checkout') {
                 steps {
-                    checkout scm
+                    git branch: 'main',
+                        credentialsId: 'githubcred21',
+                        url: 'https://github.com/Shivasai-21/My-Icollect-Project.git'
                 }
             }
             stage('Prepare') {
