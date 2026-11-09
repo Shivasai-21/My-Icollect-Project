@@ -1,0 +1,59 @@
+# Safe defaults. Every service overrides what it needs in envs/<env>/<service>/values.yaml
+
+# The release name is used as the Deployment and Service name, so other services reach it as http://<release-name>:<port>
+nameOverride: ""
+
+image:
+  repository: ""        # required, set per service
+  tag: ""               # required, written by Jenkins after every build
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+containerPort: 8080
+terminationGracePeriodSeconds: 30
+
+service:
+  type: ClusterIP
+  port: 8080
+
+env: []                 # list of {name, value}
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    memory: 256Mi
+
+probes:
+  enabled: true
+  livenessPath: /health
+  readinessPath: /health
+  startup:
+    failureThreshold: 30
+    periodSeconds: 5
+
+# Run as a fixed numeric non-root user. Kubernetes cannot verify a user given by name, so the image's own USER is not enough.
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  seccompProfile:
+    type: RuntimeDefault
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: ["ALL"]
+
+podAnnotations: {}
+
+hpa:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 70
+
+pdb:
+  enabled: false
+  minAvailable: 1

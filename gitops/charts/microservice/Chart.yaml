@@ -1,0 +1,6 @@
+apiVersion: v2
+name: microservice
+description: One reusable chart for every iCollect service. Per-service and per-environment differences live in values files.
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

@@ -1,0 +1,11 @@
+# Copy to terraform.tfvars and edit. terraform.tfvars is optional: every value has a default.
+region       = "ap-south-1"
+cluster_name = "icollect-lab"
+
+# Strongly recommended: only your own IP may reach the Kubernetes API (find it with: curl ifconfig.me)
+# api_allowed_cidrs = ["203.0.113.10/32"]
+
+# node_capacity_type  = "SPOT"      # cheaper, nodes can be reclaimed
+# node_desired_size   = 2
+# enable_nat_gateway  = false       # true = private nodes behind a NAT gateway (more realistic, costs more)
+# kubernetes_version  = null        # keep null unless you have a reason

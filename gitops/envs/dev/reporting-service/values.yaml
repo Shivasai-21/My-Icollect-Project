@@ -1,0 +1,21 @@
+image:
+  repository: ACCOUNT_ID.dkr.ecr.REGION.amazonaws.com/icollect/reporting-service
+  tag: REPLACE_WITH_IMAGE_TAG
+containerPort: 8084
+service:
+  port: 8084
+replicaCount: 1
+resources:
+  requests:
+    cpu: 50m
+    memory: 96Mi
+  limits:
+    memory: 192Mi
+env:
+  - name: PAYMENT_SERVICE_URL
+    value: http://payment-service:8082
+  - name: CUSTOMER_SERVICE_URL
+    value: http://customer-service:8081
+probes:
+  livenessPath: /health
+  readinessPath: /health

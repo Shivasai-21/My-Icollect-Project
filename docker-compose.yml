@@ -1,0 +1,42 @@
+services:
+  customer-service:            # Java / Spring Boot  - customer accounts and balances
+    image: shivasai21/icollect_app:customer_service_1.0
+    ports:
+      - "8081:8081"
+
+  notification-service:        # Node.js / Express   - sends receipts
+    image: shivasai21/icollect_app:notification_service_1.0
+    ports:
+      - "8083:8083"
+
+  payment-service:             # Java / Spring Boot  - takes payments, orchestrates the others
+    image: shivasai21/icollect_app:payment_service_1.0
+    ports:
+      - "8082:8082"
+    environment:
+      CUSTOMER_SERVICE_URL: http://customer-service:8081
+      NOTIFICATION_SERVICE_URL: http://notification-service:8083
+    depends_on:
+      - customer-service
+      - notification-service
+
+  reporting-service:           # Python / FastAPI    - read-only reports
+    image: shivasai21/icollect_app:reporting_service_1.0 
+    ports:
+      - "8084:8084"
+    environment:
+      PAYMENT_SERVICE_URL: http://payment-service:8082
+      CUSTOMER_SERVICE_URL: http://customer-service:8081
+    depends_on:
+      - payment-service
+      - customer-service
+
+  web-dashboard:               # nginx + HTML page - one entry point at http://localhost:8080
+    image: shivasai21/icollect_app:web_server_1.1
+    ports:
+      - "80:80"
+    depends_on:                # nginx resolves upstream hosts at startup, so they must exist first
+      - customer-service
+      - payment-service
+      - notification-service
+      - reporting-service

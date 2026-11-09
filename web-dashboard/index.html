@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>iCollect Dashboard</title>
+<style>
+:root { --bg:#f6f7f9; --card:#fff; --text:#1c2330; --muted:#5b6678; --line:#dde1e8; --accent:#2f5fd0; --ok:#1d7a46; --bad:#b3261e; }
+@media (prefers-color-scheme: dark) {
+  :root { --bg:#14171c; --card:#1d2128; --text:#e8ebf0; --muted:#9aa4b5; --line:#2e3440; --accent:#7ea2ff; --ok:#5fcf8b; --bad:#ff8a80; }
+}
+* { box-sizing: border-box; }
+body { margin:0; font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--text); }
+header { padding:16px 24px; display:flex; flex-wrap:wrap; gap:12px 24px; align-items:center; justify-content:space-between; }
+h1 { margin:0; font-size:20px; }
+h2 { margin:0 0 12px; font-size:15px; }
+main { padding:0 24px 32px; display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); }
+.card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px; overflow-x:auto; }
+.wide { grid-column:1 / -1; }
+.chips { display:flex; flex-wrap:wrap; gap:8px; }
+.chip { font-size:12px; padding:3px 10px; border-radius:999px; border:1px solid var(--line); color:var(--muted); }
+.chip.up { color:var(--ok); border-color:var(--ok); }
+.chip.down { color:var(--bad); border-color:var(--bad); }
+table { width:100%; border-collapse:collapse; }
+th, td { text-align:left; padding:6px 8px; border-bottom:1px solid var(--line); font-size:14px; }
+th { color:var(--muted); font-weight:500; }
+td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; }
+label { display:block; font-size:13px; color:var(--muted); margin:10px 0 4px; }
+select, input, button { font:inherit; padding:8px 10px; border-radius:8px; border:1px solid var(--line); background:var(--card); color:var(--text); width:100%; }
+button { background:var(--accent); color:#fff; border:0; cursor:pointer; margin-top:14px; font-weight:600; }
+button.secondary { background:transparent; color:var(--accent); border:1px solid var(--accent); width:auto; margin:0; padding:6px 14px; }
+button:disabled { opacity:.6; cursor:wait; }
+.stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:12px; }
+.stat b { display:block; font-size:22px; font-variant-numeric:tabular-nums; }
+.stat span { font-size:12px; color:var(--muted); }
+#flow { margin:0; padding-left:18px; }
+#flow li { margin:4px 0; }
+.err { color:var(--bad); } .ok { color:var(--ok); }
+.empty { color:var(--muted); font-size:14px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>iCollect Dashboard</h1>
+  <div class="chips" id="chips"></div>
+  <button class="secondary" id="refresh" type="button">Refresh</button>
+</header>
+
+<main>
+  <section class="card wide">
+    <h2>Collection summary <small style="color:var(--muted)">(reporting-service, Python)</small></h2>
+    <div class="stats" id="stats"><span class="empty">Loading...</span></div>
+  </section>
+
+  <section class="card">
+    <h2>Make a payment <small style="color:var(--muted)">(payment-service, Java)</small></h2>
+    <form id="pay-form">
+      <label for="customer">Customer</label>
+      <select id="customer" required></select>
+      <label for="amount">Amount</label>
+      <input id="amount" type="number" step="0.01" min="0.01" value="100.00" required>
+      <label for="method">Method</label>
+      <select id="method"><option>CARD</option><option>UPI</option><option>BANK_TRANSFER</option></select>
+      <button id="pay-btn" type="submit">Pay</button>
+    </form>
+    <h2 style="margin-top:18px">What happened</h2>
+    <ol id="flow"><li class="empty">Make a payment to see the chain of calls.</li></ol>
+  </section>
+
+  <section class="card">
+    <h2>Customers <small style="color:var(--muted)">(customer-service, Java)</small></h2>
+    <table>
+      <thead><tr><th>ID</th><th>Name</th><th class="num">Amount due</th><th>Status</th></tr></thead>
+      <tbody id="customers"></tbody>
+    </table>
+  </section>
+
+  <section class="card wide">
+    <h2>Receipts <small style="color:var(--muted)">(notification-service, Node.js)</small></h2>
+    <table>
+      <thead><tr><th>Time</th><th>Customer</th><th>To</th><th>Message</th><th>Status</th></tr></thead>
+      <tbody id="receipts"></tbody>
+    </table>
+  </section>
+
+  <section class="card wide">
+    <h2>Payments <small style="color:var(--muted)">(payment-service, Java)</small></h2>
+    <table>
+      <thead><tr><th>Time</th><th>Payment ID</th><th>Customer</th><th class="num">Amount</th><th>Method</th><th>Status</th></tr></thead>
+      <tbody id="payments"></tbody>
+    </table>
+  </section>
+</main>
+
+<script>
+'use strict';
+const $ = (id) => document.getElementById(id);
+const money = (v) => Number(v).toFixed(2);
+const SERVICES = { customer: '/customers', payment: '/payments', notification: '/notifications', reporting: '/reports/summary' };
+let customersById = {};
+
+async function api(path, options) {
+  const res = await fetch('/api' + path, options);
+  let body = null;
+  try { body = await res.json(); } catch (e) { /* no JSON body */ }
+  if (!res.ok) {
+    const msg = (body && (body.message || body.detail || body.error)) || res.statusText || 'request failed';
+    throw new Error('HTTP ' + res.status + ': ' + msg);
+  }
+  return body;
+}
+
+function cell(tr, text, cls) {
+  const td = document.createElement('td');
+  td.textContent = text;
+  if (cls) td.className = cls;
+  tr.appendChild(td);
+}
+
+function fillTable(id, rows, cols, emptyText) {
+  const tbody = $(id);
+  tbody.textContent = '';
+  if (!rows.length) {
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+    td.colSpan = cols; td.className = 'empty'; td.textContent = emptyText;
+    tr.appendChild(td); tbody.appendChild(tr);
+  }
+  return tbody;
+}
+
+function renderChips(status) {
+  const box = $('chips');
+  box.textContent = '';
+  Object.keys(SERVICES).forEach((name) => {
+    const chip = document.createElement('span');
+    chip.className = 'chip ' + (status[name] ? 'up' : 'down');
+    chip.textContent = name + (status[name] ? ' up' : ' down');
+    box.appendChild(chip);
+  });
+}
+
+function renderCustomers(list) {
+  customersById = {};
+  list.forEach((c) => { customersById[c.id] = c; });
+  const tbody = fillTable('customers', list, 4, 'No customers');
+  list.forEach((c) => {
+    const tr = document.createElement('tr');
+    cell(tr, c.id); cell(tr, c.name); cell(tr, money(c.amountDue), 'num'); cell(tr, c.status);
+    tbody.appendChild(tr);
+  });
+  const select = $('customer');
+  const keep = select.value;
+  select.textContent = '';
+  list.forEach((c) => {
+    const o = document.createElement('option');
+    o.value = c.id; o.textContent = c.id + ' - ' + c.name + ' (owes ' + money(c.amountDue) + ')';
+    select.appendChild(o);
+  });
+  if (keep) select.value = keep;
+}
+
+function renderReceipts(list) {
+  const rows = list.slice().reverse();
+  const tbody = fillTable('receipts', rows, 5, 'No receipts yet');
+  rows.forEach((n) => {
+    const tr = document.createElement('tr');
+    cell(tr, new Date(n.createdAt).toLocaleTimeString()); cell(tr, n.customerId); cell(tr, n.email);
+    cell(tr, n.message); cell(tr, n.status);
+    tbody.appendChild(tr);
+  });
+}
+
+function renderPayments(list) {
+  const rows = list.slice().reverse();
+  const tbody = fillTable('payments', rows, 6, 'No payments yet');
+  rows.forEach((p) => {
+    const tr = document.createElement('tr');
+    cell(tr, new Date(p.createdAt).toLocaleTimeString()); cell(tr, p.id.slice(0, 8));
+    cell(tr, p.customerId); cell(tr, money(p.amount), 'num'); cell(tr, p.method); cell(tr, p.status);
+    tbody.appendChild(tr);
+  });
+}
+
+function renderStats(s) {
+  const box = $('stats');
+  box.textContent = '';
+  [['Total collected', money(s.totalCollected)], ['Outstanding', money(s.totalOutstanding)],
+   ['Payments', s.paymentCount], ['Customers', s.customerCount]].forEach(([label, value]) => {
+    const d = document.createElement('div');
+    d.className = 'stat';
+    const b = document.createElement('b'); b.textContent = value;
+    const sp = document.createElement('span'); sp.textContent = label;
+    d.appendChild(b); d.appendChild(sp); box.appendChild(d);
+  });
+  Object.keys(s.collectedByMethod || {}).forEach((m) => {
+    const d = document.createElement('div');
+    d.className = 'stat';
+    const b = document.createElement('b'); b.textContent = money(s.collectedByMethod[m]);
+    const sp = document.createElement('span'); sp.textContent = 'via ' + m;
+    d.appendChild(b); d.appendChild(sp); box.appendChild(d);
+  });
+}
+
+// Loads everything; a failing service only affects its own panel and status chip.
+async function refresh() {
+  const names = Object.keys(SERVICES);
+  const results = await Promise.allSettled(names.map((n) => api(SERVICES[n])));
+  const status = {};
+  const data = {};
+  names.forEach((n, i) => { status[n] = results[i].status === 'fulfilled'; data[n] = status[n] ? results[i].value : null; });
+  renderChips(status);
+  if (data.customer) renderCustomers(data.customer);
+  if (data.notification) renderReceipts(data.notification);
+  if (data.payment) renderPayments(data.payment);
+  if (data.reporting) renderStats(data.reporting);
+  else $('stats').innerHTML = '<span class="empty">Reporting service not reachable</span>';
+  return data;
+}
+
+function flowLine(text, cls) {
+  const li = document.createElement('li');
+  li.textContent = text;
+  if (cls) li.className = cls;
+  $('flow').appendChild(li);
+}
+
+$('pay-form').addEventListener('submit', async (ev) => {
+  ev.preventDefault();
+  const btn = $('pay-btn');
+  btn.disabled = true;
+  $('flow').textContent = '';
+  const customerId = Number($('customer').value);
+  const amount = Number($('amount').value);
+  const before = customersById[customerId] ? Number(customersById[customerId].amountDue) : null;
+  try {
+    const payment = await api('/payments', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ customerId, amount, method: $('method').value }),
+    });
+    flowLine('payment-service validated the customer and recorded payment ' + payment.id.slice(0, 8) + ' (' + payment.status + ')', 'ok');
+    const data = await refresh();
+    const after = data.customer ? data.customer.find((c) => c.id === customerId) : null;
+    if (after && before !== null) flowLine('customer-service updated the balance: ' + money(before) + ' to ' + money(after.amountDue), 'ok');
+    const receipt = data.notification ? data.notification.find((n) => n.paymentId === payment.id) : null;
+    if (receipt) flowLine('notification-service sent a receipt to ' + receipt.email, 'ok');
+    else flowLine('No receipt found. The notification service may be down; the payment is still valid.', 'err');
+    if (data.reporting) flowLine('reporting-service now shows ' + money(data.reporting.totalCollected) + ' collected', 'ok');
+  } catch (e) {
+    flowLine('Payment failed: ' + e.message, 'err');
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+$('refresh').addEventListener('click', refresh);
+refresh();
+</script>
+</body>
+</html>
