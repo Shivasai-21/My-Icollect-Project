@@ -1,0 +1,26 @@
+server:
+  port: 8082
+  error:
+    include-message: always
+
+spring:
+  application:
+    name: payment-service
+
+# Downstream services. In Kubernetes these come from the Helm values (ConfigMap),
+# and point at the Service DNS names, e.g. http://customer-service.icollect.svc.cluster.local
+services:
+  customer:
+    url: ${CUSTOMER_SERVICE_URL:http://localhost:8081}
+  notification:
+    url: ${NOTIFICATION_SERVICE_URL:http://localhost:8083}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true

@@ -1,0 +1,39 @@
+# One Argo CD Application per folder under envs/dev/. Adding a service = adding a folder with a values.yaml.
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: icollect-dev
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - git:
+        repoURL: https://github.com/YOUR_GITHUB_USER/icollect-gitops.git
+        revision: main
+        directories:
+          - path: envs/dev/*
+  template:
+    metadata:
+      name: '{{ .path.basename }}-dev'
+      labels:
+        env: dev
+    spec:
+      project: icollect
+      source:
+        repoURL: https://github.com/YOUR_GITHUB_USER/icollect-gitops.git
+        targetRevision: main
+        path: charts/microservice
+        helm:
+          releaseName: '{{ .path.basename }}'
+          valueFiles:
+            - '../../{{ .path.path }}/values.yaml'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: icollect-dev
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

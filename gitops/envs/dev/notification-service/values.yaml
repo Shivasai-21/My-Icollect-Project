@@ -1,0 +1,19 @@
+image:
+  repository: ACCOUNT_ID.dkr.ecr.REGION.amazonaws.com/icollect/notification-service
+  tag: REPLACE_WITH_IMAGE_TAG
+containerPort: 8083
+service:
+  port: 8083
+replicaCount: 1
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    memory: 128Mi
+env:
+  - name: PORT
+    value: "8083"
+probes:
+  livenessPath: /health
+  readinessPath: /health

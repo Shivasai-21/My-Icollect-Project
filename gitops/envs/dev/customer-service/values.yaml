@@ -1,0 +1,26 @@
+image:
+  repository: ACCOUNT_ID.dkr.ecr.REGION.amazonaws.com/icollect/customer-service
+  tag: REPLACE_WITH_IMAGE_TAG
+containerPort: 8081
+service:
+  port: 8081
+replicaCount: 1
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    memory: 768Mi
+env:
+  - name: JAVA_TOOL_OPTIONS
+    value: -XX:MaxRAMPercentage=70
+probes:
+  livenessPath: /actuator/health/liveness
+  readinessPath: /actuator/health/readiness
+  startup:
+    failureThreshold: 36
+    periodSeconds: 5
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/path: /actuator/prometheus
+  prometheus.io/port: "8081"

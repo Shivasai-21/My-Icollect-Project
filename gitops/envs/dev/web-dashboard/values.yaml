@@ -1,0 +1,20 @@
+image:
+  repository: ACCOUNT_ID.dkr.ecr.REGION.amazonaws.com/icollect/web-dashboard
+  tag: REPLACE_WITH_IMAGE_TAG
+containerPort: 8080
+service:
+  port: 8080
+replicaCount: 1
+resources:
+  requests:
+    cpu: 25m
+    memory: 32Mi
+  limits:
+    memory: 64Mi
+# nginx-unprivileged runs as uid 101
+podSecurityContext:
+  runAsUser: 101
+  runAsGroup: 101
+probes:
+  livenessPath: /healthz
+  readinessPath: /healthz

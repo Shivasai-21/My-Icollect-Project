@@ -1,0 +1,3 @@
+@Library('icollect-shared-lib') _
+
+icollectPipeline(service: 'payment-service', language: 'java')

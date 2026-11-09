@@ -1,0 +1,3 @@
+@Library('icollect-shared-lib') _
+
+icollectPipeline(service: 'reporting-service', language: 'python')
