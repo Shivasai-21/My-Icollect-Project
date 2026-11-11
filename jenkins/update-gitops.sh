@@ -30,7 +30,7 @@ for attempt in 1 2 3; do
   git config user.name "jenkins"
   git config user.email "jenkins@localhost"
 
-  bash scripts/set-image-tag.sh "$SERVICE" "$TAG" "$ENVIRONMENT"
+  bash gitops/scripts/set-image-tag.sh "$SERVICE" "$TAG" "$ENVIRONMENT"
 
   if git diff --quiet; then
     echo "No change: ${SERVICE} is already at ${TAG} in ${ENVIRONMENT}"
