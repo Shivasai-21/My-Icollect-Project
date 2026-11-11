@@ -9,7 +9,7 @@ spec:
   goTemplateOptions: ["missingkey=error"]
   generators:
     - git:
-        repoURL: https://github.com/YOUR_GITHUB_USER/icollect-gitops.git
+        repoURL: https://github.com/shivasai-21/icollect-gitops.git
         revision: main
         directories:
           - path: envs/dev/*
