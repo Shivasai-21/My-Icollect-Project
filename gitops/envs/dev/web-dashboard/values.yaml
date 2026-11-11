@@ -3,7 +3,7 @@ image:
   tag: 0582d692
 containerPort: 80
 service:
-  port: 8080
+  port: 80
 replicaCount: 1
 resources:
   requests:
