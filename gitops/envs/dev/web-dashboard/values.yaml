@@ -1,9 +1,9 @@
 image:
-  repository: ACCOUNT_ID.dkr.ecr.REGION.amazonaws.com/icollect/web-dashboard
-  tag: REPLACE_WITH_IMAGE_TAG
-containerPort: 8080
+  repository: 577152805698.dkr.ecr.ap-south-1.amazonaws.com/icollect/web-dashboard
+  tag: 0582d692
+containerPort: 80
 service:
-  port: 8080
+  port: 80
 replicaCount: 1
 resources:
   requests:

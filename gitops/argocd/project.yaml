@@ -6,7 +6,7 @@ metadata:
 spec:
   description: iCollect services
   sourceRepos:
-    - https://github.com/YOUR_GITHUB_USER/icollect-gitops.git
+    - https://github.com/shivasai-21/icollect-gitops.git
   destinations:
     - server: https://kubernetes.default.svc
       namespace: icollect-*

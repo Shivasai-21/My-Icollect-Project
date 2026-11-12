@@ -1,6 +1,6 @@
 image:
-  repository: ACCOUNT_ID.dkr.ecr.REGION.amazonaws.com/icollect/reporting-service
-  tag: REPLACE_WITH_IMAGE_TAG
+  repository: 577152805698.dkr.ecr.ap-south-1.amazonaws.com/icollect/reporting-service
+  tag: 0582d692
 containerPort: 8084
 service:
   port: 8084
