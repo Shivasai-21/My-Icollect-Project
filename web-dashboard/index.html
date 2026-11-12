@@ -3,19 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>iCollect Operations Dashboard</title>
+<title>iCollect Financial Operations Center</title>
 
 <style>
 :root{
-  --bg:#f4f7fb;
-  --card:#ffffff;
-  --primary:#2563eb;
-  --success:#16a34a;
-  --danger:#dc2626;
+  --bg:#07111f;
+  --card:#0f1d33;
+  --card2:#162845;
+  --primary:#4f8cff;
+  --success:#22c55e;
   --warning:#f59e0b;
-  --text:#1f2937;
-  --muted:#6b7280;
-  --border:#e5e7eb;
+  --danger:#ef4444;
+  --text:#f8fafc;
+  --muted:#94a3b8;
+  --border:#233858;
 }
 
 *{
@@ -27,42 +28,27 @@
 body{
   background:var(--bg);
   color:var(--text);
-  font-family:Segoe UI,Arial,sans-serif;
+  font-family:Inter,Segoe UI,sans-serif;
 }
 
-header{
-  background:#0f172a;
-  color:white;
-  padding:20px 30px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+.header{
+  background:#081425;
+  padding:24px 32px;
+  border-bottom:1px solid var(--border);
 }
 
-header h1{
-  font-size:24px;
+.header h1{
+  font-size:30px;
+  font-weight:700;
 }
 
-header p{
-  color:#cbd5e1;
-  margin-top:4px;
+.header p{
+  color:var(--muted);
+  margin-top:6px;
 }
 
 .container{
-  padding:20px;
-}
-
-.card{
-  background:var(--card);
-  border-radius:12px;
-  padding:18px;
-  border:1px solid var(--border);
-  box-shadow:0 2px 12px rgba(0,0,0,.05);
-}
-
-.grid{
-  display:grid;
-  gap:16px;
+  padding:24px;
 }
 
 .kpi-grid{
@@ -72,20 +58,21 @@ header p{
 }
 
 .kpi{
-  background:white;
-  border-radius:12px;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:16px;
   padding:20px;
-  border-left:5px solid var(--primary);
+  box-shadow:0 6px 24px rgba(0,0,0,.35);
 }
 
-.kpi h3{
+.kpi-title{
   color:var(--muted);
   font-size:13px;
 }
 
-.kpi .value{
-  font-size:28px;
-  font-weight:bold;
+.kpi-value{
+  font-size:30px;
+  font-weight:700;
   margin-top:8px;
 }
 
@@ -93,8 +80,34 @@ header p{
   margin-top:20px;
 }
 
-.section h2{
-  margin-bottom:12px;
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:20px;
+  box-shadow:0 6px 20px rgba(0,0,0,.3);
+}
+
+.section-title{
+  font-size:18px;
+  margin-bottom:18px;
+}
+
+.health-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+  gap:12px;
+}
+
+.health-item{
+  background:var(--card2);
+  border-radius:12px;
+  padding:14px;
+}
+
+.health-good{
+  color:var(--success);
+  font-weight:600;
 }
 
 .table-container{
@@ -107,347 +120,338 @@ table{
 }
 
 th{
-  background:#f9fafb;
+  text-align:left;
+  background:#13233d;
 }
 
 th,td{
-  padding:10px;
+  padding:12px;
   border-bottom:1px solid var(--border);
-  text-align:left;
 }
 
 .badge{
   padding:4px 10px;
   border-radius:999px;
   font-size:12px;
-  font-weight:600;
 }
 
 .success{
-  background:#dcfce7;
-  color:#15803d;
+  background:rgba(34,197,94,.15);
+  color:#4ade80;
 }
 
-.failed{
-  background:#fee2e2;
-  color:#b91c1c;
-}
-
-.health-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
-  gap:12px;
-}
-
-.health{
-  padding:14px;
-  border-radius:10px;
-  background:white;
-  border:1px solid var(--border);
+.warning{
+  background:rgba(245,158,11,.15);
+  color:#fbbf24;
 }
 
 .progress{
+  height:12px;
+  background:#223754;
+  border-radius:99px;
   margin-top:8px;
-  background:#e5e7eb;
-  border-radius:20px;
-  height:10px;
 }
 
-.progress-bar{
-  height:10px;
-  border-radius:20px;
-  background:var(--success);
+.bar{
+  height:12px;
+  border-radius:99px;
+  background:var(--primary);
+}
+
+.two-col{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+}
+
+@media(max-width:900px){
+  .two-col{
+    grid-template-columns:1fr;
+  }
 }
 
 .footer{
   text-align:center;
-  padding:20px;
+  padding:24px;
   color:var(--muted);
-  font-size:13px;
-}
-
-.refresh-btn{
-  background:var(--primary);
-  color:white;
-  border:none;
-  padding:10px 14px;
-  border-radius:8px;
-  cursor:pointer;
 }
 </style>
 </head>
 
 <body>
 
-<header>
-  <div>
-    <h1>iCollect Operations Dashboard</h1>
-    <p>Collections & Recovery Platform</p>
-  </div>
-
-  <div>
-    <button class="refresh-btn" onclick="refresh()">Refresh</button>
-  </div>
-</header>
+<div class="header">
+  <h1>iCollect Financial Operations Center</h1>
+  <p>Loan Collections • Payment Processing • Recovery Analytics</p>
+</div>
 
 <div class="container">
 
   <div class="kpi-grid">
 
-    <div class="kpi">
-      <h3>Total Collected</h3>
-      <div id="totalCollected" class="value">₹0</div>
-    </div>
+      <div class="kpi">
+        <div class="kpi-title">Portfolio Value</div>
+        <div class="kpi-value">₹18.40 Cr</div>
+      </div>
 
-    <div class="kpi">
-      <h3>Outstanding Due</h3>
-      <div id="totalOutstanding" class="value">₹0</div>
-    </div>
+      <div class="kpi">
+        <div class="kpi-title">Collected MTD</div>
+        <div class="kpi-value">₹7.20 Cr</div>
+      </div>
 
-    <div class="kpi">
-      <h3>Total Customers</h3>
-      <div id="customerCount" class="value">0</div>
-    </div>
+      <div class="kpi">
+        <div class="kpi-title">Outstanding Balance</div>
+        <div class="kpi-value">₹2.95 Cr</div>
+      </div>
 
-    <div class="kpi">
-      <h3>Total Payments</h3>
-      <div id="paymentCount" class="value">0</div>
-    </div>
+      <div class="kpi">
+        <div class="kpi-title">Recovery Rate</div>
+        <div class="kpi-value">94.8%</div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-title">Active Accounts</div>
+        <div class="kpi-value">12,458</div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-title">Today's Collections</div>
+        <div class="kpi-value">₹18.6 L</div>
+      </div>
 
   </div>
 
   <div class="section card">
-    <h2>Platform Health</h2>
+    <h2 class="section-title">Platform Health</h2>
 
-    <div class="health-grid" id="health-container"></div>
+    <div class="health-grid">
+
+      <div class="health-item">
+        Customer Service
+        <div class="health-good">● Healthy</div>
+      </div>
+
+      <div class="health-item">
+        Payment Service
+        <div class="health-good">● Healthy</div>
+      </div>
+
+      <div class="health-item">
+        Notification Service
+        <div class="health-good">● Healthy</div>
+      </div>
+
+      <div class="health-item">
+        Reporting Service
+        <div class="health-good">● Healthy</div>
+      </div>
+
+      <div class="health-item">
+        ArgoCD
+        <div class="health-good">● Synced</div>
+      </div>
+
+      <div class="health-item">
+        Amazon EKS
+        <div class="health-good">● Healthy</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="section two-col">
+
+      <div class="card">
+
+          <h2 class="section-title">Collections by Channel</h2>
+
+          <p>UPI - ₹3.18 Cr</p>
+          <div class="progress"><div class="bar" style="width:92%"></div></div>
+
+          <br>
+
+          <p>Card - ₹2.45 Cr</p>
+          <div class="progress"><div class="bar" style="width:78%"></div></div>
+
+          <br>
+
+          <p>Net Banking - ₹1.57 Cr</p>
+          <div class="progress"><div class="bar" style="width:52%"></div></div>
+
+          <br>
+
+          <p>Auto Debit - ₹1.22 Cr</p>
+          <div class="progress"><div class="bar" style="width:40%"></div></div>
+
+      </div>
+
+      <div class="card">
+
+        <h2 class="section-title">Recovery Aging</h2>
+
+        <table>
+            <tr>
+                <td>0-30 Days</td>
+                <td>8,452 Accounts</td>
+            </tr>
+
+            <tr>
+                <td>31-60 Days</td>
+                <td>2,344 Accounts</td>
+            </tr>
+
+            <tr>
+                <td>61-90 Days</td>
+                <td>912 Accounts</td>
+            </tr>
+
+            <tr>
+                <td>90+ Days</td>
+                <td>214 Accounts</td>
+            </tr>
+        </table>
+
+      </div>
+
   </div>
 
   <div class="section card">
-    <h2>Collection Analytics</h2>
 
-    <div id="analytics"></div>
-  </div>
+      <h2 class="section-title">Customer Risk Portfolio</h2>
 
-  <div class="section card">
-    <h2>DevOps Platform Status</h2>
+      <div class="table-container">
 
-    <table>
-      <tr>
-        <td>Environment</td>
-        <td>DEV</td>
-      </tr>
-
-      <tr>
-        <td>Cluster</td>
-        <td>icollect-eks</td>
-      </tr>
-
-      <tr>
-        <td>Namespace</td>
-        <td>icollect-dev</td>
-      </tr>
-
-      <tr>
-        <td>Deployment Model</td>
-        <td>GitOps (ArgoCD)</td>
-      </tr>
-
-      <tr>
-        <td>CI/CD</td>
-        <td>Jenkins → SonarQube → Trivy → ECR → ArgoCD → EKS</td>
-      </tr>
-
-    </table>
-  </div>
-
-  <div class="section card">
-
-    <h2>Customer Portfolio</h2>
-
-    <div class="table-container">
       <table>
+
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Outstanding Amount</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-
-        <tbody id="customers"></tbody>
-      </table>
-    </div>
-
-  </div>
-
-  <div class="section card">
-
-    <h2>Payment Transactions</h2>
-
-    <div class="table-container">
-      <table>
-
-        <thead>
-          <tr>
-            <th>Payment ID</th>
             <th>Customer</th>
-            <th>Amount</th>
-            <th>Method</th>
+            <th>Risk Tier</th>
+            <th>Outstanding</th>
+            <th>DPD</th>
             <th>Status</th>
           </tr>
         </thead>
 
-        <tbody id="payments"></tbody>
+        <tbody>
+
+          <tr>
+            <td>CUS-1001 | Rajesh Kumar</td>
+            <td>Low</td>
+            <td>₹15,000</td>
+            <td>0</td>
+            <td><span class="badge success">Active</span></td>
+          </tr>
+
+          <tr>
+            <td>CUS-1002 | Priya Sharma</td>
+            <td>High</td>
+            <td>₹85,000</td>
+            <td>34</td>
+            <td><span class="badge warning">Delinquent</span></td>
+          </tr>
+
+        </tbody>
 
       </table>
-    </div>
+
+      </div>
 
   </div>
 
   <div class="section card">
 
-    <h2>Notification Activity</h2>
+      <h2 class="section-title">Transaction Monitoring</h2>
 
-    <div class="table-container">
+      <div class="table-container">
 
       <table>
 
-        <thead>
+          <thead>
           <tr>
-            <th>Customer</th>
-            <th>Email</th>
-            <th>Status</th>
+              <th>Transaction ID</th>
+              <th>Customer</th>
+              <th>Amount</th>
+              <th>Channel</th>
+              <th>Latency</th>
+              <th>Status</th>
           </tr>
-        </thead>
+          </thead>
 
-        <tbody id="notifications"></tbody>
+          <tbody>
+
+          <tr>
+              <td>TXN-893421</td>
+              <td>CUS-1001</td>
+              <td>₹12,500</td>
+              <td>UPI</td>
+              <td>132ms</td>
+              <td><span class="badge success">SUCCESS</span></td>
+          </tr>
+
+          <tr>
+              <td>TXN-893422</td>
+              <td>CUS-1002</td>
+              <td>₹8,500</td>
+              <td>CARD</td>
+              <td>118ms</td>
+              <td><span class="badge success">SUCCESS</span></td>
+          </tr>
+
+          </tbody>
 
       </table>
 
-    </div>
+      </div>
+
+  </div>
+
+  <div class="section card">
+
+      <h2 class="section-title">DevOps Operations</h2>
+
+      <table>
+
+        <tr>
+          <td>Environment</td>
+          <td>DEV</td>
+        </tr>
+
+        <tr>
+          <td>Cluster</td>
+          <td>icollect-eks</td>
+        </tr>
+
+        <tr>
+          <td>Namespace</td>
+          <td>icollect-dev</td>
+        </tr>
+
+        <tr>
+          <td>GitOps</td>
+          <td>Enabled</td>
+        </tr>
+
+        <tr>
+          <td>ArgoCD</td>
+          <td>Synced</td>
+        </tr>
+
+        <tr>
+          <td>Latest Release</td>
+          <td>25929e0c</td>
+        </tr>
+
+      </table>
 
   </div>
 
 </div>
 
 <div class="footer">
-  iCollect Platform • AWS EKS • ArgoCD • GitOps • Jenkins
+Powered by AWS EKS • Helm • ArgoCD • Jenkins • Docker • SonarQube • Trivy • Amazon ECR
 </div>
-
-<script>
-
-const api = async(url)=>{
-    const res = await fetch(url);
-
-    if(!res.ok){
-        throw new Error(url);
-    }
-
-    return await res.json();
-};
-
-function money(v){
-    return "₹" + Number(v || 0).toLocaleString();
-}
-
-async function refresh(){
-
-    try{
-
-        const [
-            customers,
-            payments,
-            notifications,
-            reporting
-        ] = await Promise.all([
-            api('/api/customers'),
-            api('/api/payments'),
-            api('/api/notifications'),
-            api('/api/reports/summary')
-        ]);
-
-        document.getElementById('totalCollected').innerText =
-            money(reporting.totalCollected);
-
-        document.getElementById('totalOutstanding').innerText =
-            money(reporting.totalOutstanding);
-
-        document.getElementById('customerCount').innerText =
-            reporting.customerCount;
-
-        document.getElementById('paymentCount').innerText =
-            reporting.paymentCount;
-
-
-        document.getElementById('analytics').innerHTML = Object.entries(
-            reporting.collectedByMethod || {}
-        ).map(([method,value])=>`
-
-            <div style="margin-bottom:15px">
-
-                <div>${method} (${money(value)})</div>
-
-                <div class="progress">
-                   <div class="progress-bar"
-                        style="width:${Math.min(value/1000,100)}%">
-                   </div>
-                </div>
-
-            </div>
-
-        `).join('');
-
-        document.getElementById('customers').innerHTML =
-            customers.map(c=>`
-            <tr>
-                <td>${c.id}</td>
-                <td>${c.name}</td>
-                <td>${money(c.amountDue)}</td>
-                <td>${c.status}</td>
-            </tr>
-        `).join('');
-
-        document.getElementById('payments').innerHTML =
-            payments.map(p=>`
-            <tr>
-                <td>${p.id}</td>
-                <td>${p.customerId}</td>
-                <td>${money(p.amount)}</td>
-                <td>${p.method}</td>
-                <td><span class="badge success">${p.status}</span></td>
-            </tr>
-        `).join('');
-
-        document.getElementById('notifications').innerHTML =
-            notifications.map(n=>`
-            <tr>
-                <td>${n.customerId}</td>
-                <td>${n.email}</td>
-                <td><span class="badge success">${n.status}</span></td>
-            </tr>
-        `).join('');
-
-        document.getElementById('health-container').innerHTML = `
-            <div class="health">🟢 Customer Service</div>
-            <div class="health">🟢 Payment Service</div>
-            <div class="health">🟢 Notification Service</div>
-            <div class="health">🟢 Reporting Service</div>
-            <div class="health">🟢 ArgoCD Synced</div>
-            <div class="health">🟢 EKS Healthy</div>
-        `;
-
-    }catch(e){
-
-        console.log(e);
-    }
-}
-
-refresh();
-
-setInterval(refresh,15000);
-
-</script>
 
 </body>
 </html>
+
