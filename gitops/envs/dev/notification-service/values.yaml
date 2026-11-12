@@ -1,6 +1,6 @@
 image:
-  repository: ACCOUNT_ID.dkr.ecr.REGION.amazonaws.com/icollect/notification-service
-  tag: REPLACE_WITH_IMAGE_TAG
+  repository: 577152805698.dkr.ecr.ap-south-1.amazonaws.com/icollect/notification-service
+  tag: 5d640b3f
 containerPort: 8083
 service:
   port: 8083
