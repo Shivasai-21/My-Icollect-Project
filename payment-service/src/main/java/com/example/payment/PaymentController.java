@@ -35,7 +35,10 @@ public class PaymentController {
     public List<Payment> list(@RequestParam(required = false) Long customerId) {
         return customerId == null ? repository.findAll() : repository.findByCustomerId(customerId);
     }
-   
+   /this controller is added for testing sonarqube analysis purpose only
+    @GetMapping("/danger")
+    public String danger
+
 
     @GetMapping("/{id}")
     public Payment get(@PathVariable String id) {
