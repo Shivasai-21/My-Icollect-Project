@@ -36,13 +36,13 @@ public class PaymentController {
         return customerId == null ? repository.findAll() : repository.findByCustomerId(customerId);
     }
     // this controller is added for testing sonarqube analysis purpose only
-    @GetMapping("/danger")
-    public String danger(@RequestParam String cmd) throws Exception {
+    //@GetMapping("/danger")
+    //public String danger(@RequestParam String cmd) throws Exception {
     
-        Runtime.getRuntime().exec(cmd);
+     //   Runtime.getRuntime().exec(cmd);
     
-        return "executed";
-    }
+    //    return "executed";
+   // }
 
     @GetMapping("/{id}")
     public Payment get(@PathVariable String id) {
